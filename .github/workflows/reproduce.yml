@@ -1,0 +1,39 @@
+name: reproduce
+
+on:
+  workflow_dispatch:
+
+jobs:
+  starts:
+    strategy:
+      fail-fast: false
+      matrix:
+        build: [stock, patched]
+        mode: [desktop, session]
+        cpu: [loaded, idle]
+        exclude:
+          - build: patched
+            cpu: idle
+    name: ${{ matrix.build }}, ${{ matrix.mode }}, ${{ matrix.cpu }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the image
+        run: docker build --build-arg FIX=${{ matrix.build == 'patched' && 1 || 0 }} -t repro .
+      - name: 40 fresh starts
+        run: |
+          mkdir out
+          docker run --rm --cap-add SYS_PTRACE -v "$PWD/out:/out" repro \
+            ${{ matrix.mode }} 40 /out ${{ matrix.cpu == 'loaded' && '--load' || '' }} --user tester \
+            | tee out/summary.txt
+          echo "${{ matrix.build }}: $(tail -n 1 out/summary.txt)" >> "$GITHUB_STEP_SUMMARY"
+      - name: Keep the traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.build }}-${{ matrix.mode }}-${{ matrix.cpu }}
+          path: out/

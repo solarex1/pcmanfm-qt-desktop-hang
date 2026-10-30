@@ -158,7 +158,9 @@ def main(argv):
     os.makedirs(out, exist_ok=True)
     os.makedirs("/tmp/.X11-unix", exist_ok=True)           # the X servers' sockets, for any user
     os.chmod("/tmp/.X11-unix", 0o1777)
-    print(run(["dpkg-query", "-W", "pcmanfm-qt", "libfm-qt6-15", "libglib2.0-0t64"])[1], flush=True)
+    # What is under test: the image's VERSIONS command, else Debian's packages.
+    print(run(["sh", "-c", os.environ.get("VERSIONS", "dpkg-query -W pcmanfm-qt libfm-qt6-15 libglib2.0-0t64")])[1],
+          flush=True)
     print(f"{os.cpu_count()} CPUs", flush=True)
     spinners = [subprocess.Popen([sys.executable, "-c", "while True: pass"], stdin=subprocess.DEVNULL)
                 for _ in range(2 * os.cpu_count())] if load else []

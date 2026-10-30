@@ -1,0 +1,35 @@
+# libfm-qt and pcmanfm-qt from their master branches, at the commits below, built on Arch Linux,
+# whose Qt is as new as master needs (6.10 or later), and what repro.py needs. With FIX=1,
+# pcmanfm-qt also has #2213's commit, cherry-picked onto master.
+FROM archlinux:latest
+ARG LIBFM_QT=8e15258dd9513a21c19435c0dc4a6df8fad6ba4b
+ARG PCMANFM_QT=11cc9ab4a3d8ed8d4b318606856939bead658f5f
+ARG PR_2213=6538dadc23c7a6ef001c7c970b356ecd189b80bd
+ARG FIX=0
+RUN pacman -Syu --noconfirm --needed \
+      base-devel git cmake ninja qt6-base qt6-tools lxqt-build-tools lxqt-menu-data layer-shell-qt \
+      libexif libxcb glib2 lxqt-session openbox xorg-server-xvfb xorg-xwininfo dbus gdb python \
+      procps-ng gvfs \
+ && useradd -m -u 1000 tester
+RUN git clone -q https://github.com/lxqt/libfm-qt /src/libfm-qt \
+ && git -C /src/libfm-qt checkout -q --detach "$LIBFM_QT" \
+ && cmake -S /src/libfm-qt -B /src/libfm-qt/build -G Ninja -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+ && ninja -C /src/libfm-qt/build install
+RUN git clone -q https://github.com/lxqt/pcmanfm-qt /src/pcmanfm-qt \
+ && git -C /src/pcmanfm-qt checkout -q --detach "$PCMANFM_QT" \
+ && if [ "$FIX" = 1 ]; then \
+      git -C /src/pcmanfm-qt fetch -q origin pull/2213/head \
+   && git -C /src/pcmanfm-qt cherry-pick --no-commit "$PR_2213"; \
+    fi \
+ && cmake -S /src/pcmanfm-qt -B /src/pcmanfm-qt/build -G Ninja -DCMAKE_INSTALL_PREFIX=/usr \
+      -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+ && ninja -C /src/pcmanfm-qt/build install \
+ && { echo "libfm-qt $(git -C /src/libfm-qt rev-parse HEAD)"; \
+      echo "pcmanfm-qt $(git -C /src/pcmanfm-qt rev-parse HEAD)$([ "$FIX" = 1 ] && echo " with #2213's $PR_2213")"; \
+    } > /versions.txt
+COPY repro.py /repro.py
+ENV DEBUGINFOD_URLS=https://debuginfod.archlinux.org \
+    VERSIONS="cat /versions.txt; pacman -Q glib2 qt6-base lxqt-session"
+ENTRYPOINT ["python3", "/repro.py"]
+CMD ["desktop", "40", "/out", "--load", "--user", "tester"]

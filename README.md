@@ -25,8 +25,8 @@ No start had any other outcome. Under load, the starts that didn't hang took abo
 and without the change: medians of 0.7 s alone, and 2.2 s and 2.0 s in the session.
 
 Every hung start's main thread waits in the same place. Start 10 of the loaded `desktop` job, from
-its artifact: its frames from #3 on, with addresses and arguments cut, and the `g_object_unref` and
-`std::shared_ptr` frames between them left out:
+its artifact: its frames from #3 on, with addresses and arguments cut, omitting intermediate frames
+that release references:
 
 ```text
 #3  g_context_specific_group_request_state () at ../../../gio/gcontextspecificgroup.c:157

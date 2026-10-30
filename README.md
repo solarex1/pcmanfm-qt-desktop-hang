@@ -10,6 +10,41 @@ CPU load, and the same loaded starts with #2213's change. The image takes Debian
 they are when it's built, so a later update, such as GLib's fix, can change what it shows; each job
 prints the versions it ran.
 
+## Results
+
+[Run 41075328737](https://github.com/solarex1/pcmanfm-qt-desktop-hang/actions/runs/41075328737), on
+GitHub's `ubuntu-24.04` runners with 4 CPUs, with Debian 13's pcmanfm-qt 2.1.0-2 (2.1.0-2+fix1 with
+the change), libfm-qt6-15 2.1.0-1+b1 and libglib2.0-0t64 2.84.4-3~deb13u5:
+
+| 40 fresh starts | Stock, no added load | Stock, CPU loaded | With #2213's change, CPU loaded |
+| --- | --- | --- | --- |
+| `pcmanfm-qt --desktop` | 0 hung | 18 hung | 0 hung |
+| `startlxqt` | 0 hung | 12 hung | 0 hung |
+
+No start had any other outcome. Under load, the starts that didn't hang took about as long with
+and without the change: medians of 0.7 s alone, and 2.2 s and 2.0 s in the session.
+
+Every hung start's main thread waits in the same place. Start 10 of the loaded `desktop` job, from
+its artifact: its frames from #3 on, with addresses and arguments cut, and the `g_object_unref` and
+`std::shared_ptr` frames between them left out:
+
+```text
+#3  g_context_specific_group_request_state () at ../../../gio/gcontextspecificgroup.c:157
+#4  g_context_specific_group_remove () at ../../../gio/gcontextspecificgroup.c:224
+#5  g_unix_mount_monitor_finalize () at ../../../gio/gunixmounts.c:2605
+#7  g_unix_volume_monitor_finalize () at ../../../gio/gunixvolumemonitor.c:77
+#9  g_union_volume_monitor_finalize () at ../../../gio/gunionvolumemonitor.c:72
+#12 Fm::VolumeManager::~VolumeManager () at ./src/core/volumemanager.cpp:32
+#19 Fm::Folder::~Folder () at ./src/core/folder.cpp:109
+#27 PCManFM::DesktopWindow::setDesktopFolder () at ./pcmanfm/desktopwindow.cpp:513
+#28 PCManFM::DesktopWindow::updateFromSettings () at ./pcmanfm/desktopwindow.cpp:958
+#29 PCManFM::Application::createDesktopWindow () at ./pcmanfm/application.cpp:824
+#30 PCManFM::Application::desktopManager () at ./pcmanfm/application.cpp:471
+#31 PCManFM::Application::parseCommandLineArgs () at ./pcmanfm/application.cpp:248
+#32 PCManFM::Application::exec () at ./pcmanfm/application.cpp:349
+#33 main () at ./pcmanfm/pcmanfm.cpp:12
+```
+
 ## Run it
 
 On GitHub's runners: fork this repository, enable its workflows, and run `reproduce` from the

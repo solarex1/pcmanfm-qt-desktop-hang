@@ -3,17 +3,19 @@
 
 Each start gets a new X server, a new session bus and a new home, as a fresh login does. In
 `desktop` mode it runs `pcmanfm-qt --desktop` alone; in `session` mode, `startlxqt`, which starts
-it with the rest of LXQt. A start hangs when pcmanfm-qt owns its D-Bus name, org.pcmanfm.PCManFM,
-but answers no call and has drawn no desktop window by the deadline; then gdb prints every
-thread's stack into OUT, and the start is ended.
+it with the rest of LXQt. A start is fine when, within about 30 s of pcmanfm-qt taking its D-Bus
+name, org.pcmanfm.PCManFM, it both answers a call and has drawn its desktop window. If it hasn't and
+a process still owns the name, the start hung: gdb saves every thread's stack in OUT. Every other
+outcome is counted apart, by name, with what was said saved in OUT.
 
     python3 repro.py MODE STARTS OUT [--load] [--user NAME]
 
---load keeps every CPU busy with twice as many spinning processes as CPUs while the starts run;
+--load keeps twice as many spinning processes as CPUs running while the starts run;
 --user runs the session as that account (gdb still runs as root, which needs CAP_SYS_PTRACE).
 """
 import os
 import pwd
+import re
 import signal
 import subprocess
 import sys
@@ -86,15 +88,20 @@ class Start:
         status, out = run(["xwininfo", "-root", "-tree"], self.env)
         return status == 0 and "pcmanfm-desktop" in out
 
-    def pcmanfm_pid(self):
-        """The process that owns pcmanfm-qt's name on this start's bus."""
+    def owner(self):
+        """(the PID of the process that owns pcmanfm-qt's name on this start's bus, or None, the
+        bus's answer)."""
         status, out = self.bus_call("--dest=org.freedesktop.DBus", "/org/freedesktop/DBus",
                                     "org.freedesktop.DBus.GetConnectionUnixProcessID", f"string:{NAME}")
         words = out.split()
-        return int(words[-1]) if status == 0 and words and words[-1].isdigit() else None
+        return (int(words[-1]) if status == 0 and words and words[-1].isdigit() else None), out
+
+    def save(self, kind, text):
+        with open(os.path.join(self.out, f"start-{self.number}-{kind}.txt"), "w") as f:
+            f.write(text)
 
     def judge(self, mode):
-        """'fine', 'hung', or why the start couldn't be judged."""
+        """'fine', 'hung', or what else came of the start."""
         self.spawn(["Xvfb", f":{self.display}", "-screen", "0", "1280x800x24", "-nolisten", "tcp"],
                    as_user=False)
         if not until(lambda: os.path.exists(f"/tmp/.X11-unix/X{self.display}"), 15):
@@ -111,12 +118,24 @@ class Start:
             return "never took its D-Bus name"
         if until(lambda: self.answers() and self.desktop_window(), DEADLINE, step=0.5):
             return "fine"
-        _, trace = run(["gdb", "-batch", "-iex", "set debuginfod enabled on", "-p",
-                        str(self.pcmanfm_pid()), "-ex", "set pagination off",
-                        "-ex", "thread apply all bt"], {**os.environ, **self.env}, 300)
-        with open(os.path.join(self.out, f"start-{self.number}-trace.txt"), "w") as f:
-            f.write(trace)
-        return "hung"
+        return self.stalled()
+
+    def stalled(self):
+        """A start that didn't come up in time: 'hung', with every thread's stack in
+        start-N-trace.txt, when a process still owns the name and gdb gets its stacks; 'hung, no
+        stack', with gdb's output in start-N-gdb.txt, when gdb doesn't; or 'no owner of its name at
+        the end', with the bus's answer in start-N-owner.txt."""
+        pid, answer = self.owner()
+        if pid is None:
+            self.save("owner", answer)
+            return "no owner of its name at the end"
+        status, out = run(["gdb", "-batch", "-iex", "set debuginfod enabled on", "-p", str(pid),
+                           "-ex", "set pagination off", "-ex", "thread apply all bt"],
+                          {**os.environ, **self.env}, 300)
+        stack = re.search(r"^Thread \d+ \(", out, re.M)
+        self.save("trace" if stack else "gdb",
+                  f"{out}\ngdb: {'timed out' if status is None else f'exit {status}'}\n")
+        return "hung" if stack else "hung, no stack"
 
     def end(self):
         for process in self.processes:
@@ -162,7 +181,7 @@ def main(argv):
     line = f"{label}: {results.count('hung')} of {len(results)} fresh starts hung"
     others = {v: results.count(v) for v in set(results) - {"fine", "hung"}}
     if others:
-        line += f"; unjudged: {others}"
+        line += f"; other outcomes: {others}"
     print(line, flush=True)
     return 0
 

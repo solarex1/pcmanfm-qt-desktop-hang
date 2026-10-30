@@ -29,9 +29,10 @@ on GitHub's `ubuntu-24.04` runners with 4 CPUs:
 - **Debian 13:** pcmanfm-qt 2.1.0-2 (2.1.0-2+fix1 with the change), libfm-qt6-15 2.1.0-1+b1, GLib
   2.84.4-3~deb13u5, and Qt 6.8.2 and liblxqt2 2.1.0-3 (from the build's log).
 
-No start had any other outcome. Under load, the starts that didn't hang took about as long with
-and without the change: medians of 0.8 s and 0.6 s alone, and 1.5 s and 1.5 s in the session, on
-master; 0.8 s and 0.8 s, and 2.0 s and 2.3 s, on Debian 13.
+No start had any other outcome. Under load, the starts that didn't hang took about as long
+without and with the change, each start's whole time in the harness, its setup and teardown
+included: medians of 0.8 s and 0.6 s alone, and 1.5 s and 1.5 s in the session, on master;
+0.8 s and 0.8 s, and 2.0 s and 2.3 s, on Debian 13.
 
 Every hung start's main thread waits in the same place. Start 2 of master's loaded `desktop`
 job, from its artifact: its frames from #3 on, with addresses and arguments cut, omitting
@@ -79,10 +80,11 @@ runs `pcmanfm-qt --desktop` (`desktop`) or `startlxqt` (`session`) as the user `
 is fine when, within about 30 s of taking its D-Bus name, pcmanfm-qt both answers a D-Bus call and
 has drawn its desktop window. If it hasn't and a process still owns the name, the start hung: gdb
 saves every thread's stack as `out/start-N-trace.txt`, with symbols from the distribution's
-debuginfod; attaching gdb is why the container needs `CAP_SYS_PTRACE`. Any other outcome, such as
-no X server or bus, the name never taken or no longer owned, or gdb getting no stack, is counted
-apart, by name, with what was said saved in `out/`. `--load` keeps twice as many busy processes as
-CPUs running throughout.
+debuginfod; attaching gdb is why the container needs `CAP_SYS_PTRACE`. Any other outcome is counted
+apart, by name: no X server; no session bus, with dbus-daemon's answer in its verdict line; the
+name never taken, with the start's output in `out/start-N-output.txt`; no owner of the name at the
+end, with the bus's answer in `out/start-N-owner.txt`; or gdb getting no stack, with what gdb said
+in `out/start-N-gdb.txt`. `--load` keeps twice as many busy processes as CPUs running throughout.
 
 `Dockerfile.master` builds libfm-qt and pcmanfm-qt at the master commits it names; with `FIX=1`,
 it cherry-picks #2213's commit onto pcmanfm-qt. `fix/0001-take-the-volume-monitor-before-the-desktop.patch`
@@ -104,13 +106,15 @@ The lines are at the master commits `Dockerfile.master` builds.
    GLib's volume monitor. pcmanfm-qt takes its own reference to the monitor only after
    `parseCommandLineArgs()` has made the desktop
    ([`application.cpp:353-361`](https://github.com/lxqt/pcmanfm-qt/blob/11cc9ab4a3d8ed8d4b318606856939bead658f5f/pcmanfm/application.cpp#L353-L361)). So dropping the first folder
-   drops the last reference, and the main thread finalizes the volume monitor.
+   can drop the last reference, and when it does, the main thread finalizes the volume monitor.
 3. The `VolumeManager` also gets the volume monitor on a low-priority job thread
    ([`volumemanager.cpp:21-25`](https://github.com/lxqt/libfm-qt/blob/8e15258dd9513a21c19435c0dc4a6df8fad6ba4b/src/core/volumemanager.cpp#L21-L25)). Finalizing GLib's unix mount
    monitor waits for its stop to finish; if another thread gets a mount monitor while the stop is
    pending, GLib aborts the stop without waking the waiting thread, a GLib bug with a fix in
-   [GLib !5448](https://gitlab.gnome.org/GNOME/glib/-/merge_requests/5448). A busy CPU delays
-   the low-priority job toward the folder change; with no added load, none of the starts hung.
+   [GLib !5448](https://gitlab.gnome.org/GNOME/glib/-/merge_requests/5448). Added CPU load
+   made the hang reproduce here: 56 of 160 loaded stock starts hung, and none of 160 without
+   added load. That the load delays the low-priority job into the folder change is a plausible
+   explanation; no trace records when the job got the monitor.
 4. The job signals the main thread through a blocking queued connection, so in every trace
    libfm-qt's job threads wait for the main thread too, in `doActivate` (`QLatch::wait` with
    Qt 6.12, `QSemaphore::acquire` with 6.8).

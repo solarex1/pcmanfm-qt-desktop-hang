@@ -6,7 +6,9 @@ Each start gets a new X server, a new session bus and a new home, as a fresh log
 it with the rest of LXQt. A start is fine when, within about 30 s of pcmanfm-qt taking its D-Bus
 name, org.pcmanfm.PCManFM, it both answers a call and has drawn its desktop window. If it hasn't and
 a process still owns the name, the start hung: gdb saves every thread's stack in OUT. Every other
-outcome is counted apart, by name, with what was said saved in OUT.
+outcome is counted apart, by name: the start's output is in OUT once pcmanfm-qt runs, and the bus's
+or gdb's answer when a stalled start has no owner or no stack; dbus-daemon's answer is in the
+verdict when the bus doesn't start.
 
     python3 repro.py MODE STARTS OUT [--load] [--user NAME]
 

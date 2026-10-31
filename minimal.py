@@ -45,7 +45,9 @@ def backtrace(pid):
     with path.open("w+") as trace:
         status, code = "gdb did not complete", None
         try:
-            code = sp.run(["gdb", "-batch", "-iex", "set debuginfod enabled on", "-p", str(pid),
+            code = sp.run(["gdb", "-batch", "-iex", "set debuginfod enabled on",
+                           "-iex", "set auto-solib-add off", "-p", str(pid),
+                           "-ex", "sharedlibrary libgio-2.0", "-ex", "sharedlibrary libfm-qt",
                            "-ex", "thread apply all bt"], stdout=trace, stderr=sp.STDOUT,
                           timeout=90, preexec_fn=child).returncode
             status = f"gdb exit: {code}"
@@ -77,6 +79,7 @@ def probe(binary):
                     end = time.monotonic() + 15
                     while True:
                         if process.poll() is not None:
+                            print(Path(log.name).read_text(), file=sys.stderr, flush=True)
                             raise RuntimeError(f"application exited {process.returncode}; see {log.name}")
                         answer = bus(NAME, "/Application", "org.freedesktop.DBus.Introspectable.Introspect")
                         tree = run(["xwininfo", "-root", "-tree"])
@@ -115,6 +118,7 @@ def main():
     binary = shutil.which(sys.argv[1] if len(sys.argv) > 1 else "pcmanfm-qt")
     if not binary:
         raise RuntimeError("pcmanfm-qt binary not found")
+    binary = str(Path(binary).resolve())
     if os.environ.get("PCMANFM_REPRO_PROBE") == "1":
         ROOT = Path(os.environ["PCMANFM_REPRO_ROOT"])
         return probe(binary)
@@ -130,8 +134,9 @@ def main():
     cpu = min(os.sched_getaffinity(0))
     os.sched_setaffinity(0, {cpu})
     print(f"Results: {ROOT}\nCPU {cpu}: two busy workers; up to 40 starts; 180-second probe limit.", flush=True)
-    command = ["xvfb-run", "-a", "dbus-run-session", "--", sys.executable, str(Path(__file__).resolve()), binary]
-    process = sp.Popen(command, env=env, start_new_session=True)
+    command = ["xvfb-run", "-a", "-s", "-screen 0 1280x800x24 -noreset -nolisten tcp",
+               "dbus-run-session", "--", sys.executable, str(Path(__file__).resolve()), binary]
+    process = sp.Popen(command, env=env, cwd=ROOT, start_new_session=True)
     try:
         signal.alarm(200)
         os.waitid(os.P_PID, process.pid, os.WEXITED | os.WNOWAIT)

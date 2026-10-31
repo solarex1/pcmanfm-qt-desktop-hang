@@ -26,7 +26,23 @@ jobs:
         with:
           persist-credentials: false
       - name: Build current master
-        run: docker build -f Dockerfile.master --build-arg FIX=${{ matrix.build == 'patched' && 1 || 0 }} -t repro .
+        run: docker build -f Dockerfile.master --build-arg TEST_UID="$(id -u)" --build-arg FIX=${{ matrix.build == 'patched' && 1 || 0 }} -t repro .
+      - name: Collect the previous variant's abort diagnostic
+        if: matrix.build == 'patched'
+        shell: bash
+        run: |
+          git fetch --no-tags --depth=1 origin 0c1ef95757cbdefd2102130bc5a0a9e290bcb1a7
+          git show 0c1ef95757cbdefd2102130bc5a0a9e290bcb1a7:minimal.py > previous.py
+          mkdir previous
+          chmod 0777 previous
+          set +e
+          docker run --rm --cap-add SYS_PTRACE --user tester -w /previous \
+            -v "$PWD/previous:/previous" -v "$PWD/previous.py:/previous.py:ro" \
+            --entrypoint python3 repro /previous.py | tee previous/console.txt
+          status=${PIPESTATUS[0]}
+          set -e
+          echo "$status" > previous/exit-status.txt
+          echo "Previous variant diagnostic exit: $status (observation, not a candidate check)"
       - name: Run the native script
         shell: bash
         run: |
@@ -71,5 +87,13 @@ jobs:
         with:
           name: minimal-${{ matrix.build }}
           path: |
-            out/
-            checks/
+            out/*.txt
+            out/pcmanfm-repro-*/*.txt
+            out/pcmanfm-repro-*/*.log
+            checks/verification.txt
+            checks/lifecycle/*/console.txt
+            checks/lifecycle/*/pcmanfm-repro-*/*.txt
+            checks/lifecycle/*/pcmanfm-repro-*/*.log
+            previous/*.txt
+            previous/pcmanfm-repro-*/*.txt
+            previous/pcmanfm-repro-*/*.log

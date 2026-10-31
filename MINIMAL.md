@@ -16,6 +16,7 @@ The script creates its own X display, session bus and working directory. It star
 workers and the application on one available logical CPU, then launches `pcmanfm-qt --desktop`
 up to 40 times, with a fresh home each time. A responsive start answers a D-Bus call and has a
 desktop window. It kills that instance before the next start.
+The private X server stays running between attempts; it is started with `-noreset`.
 
 At the first startup that is not ready after 15 seconds, it checks that its child still owns the
 bus name and attempts a backtrace. The program's output and debugger result remain in the
@@ -23,6 +24,7 @@ printed `pcmanfm-repro-*` directory in your current directory. A failed dependen
 an error, not a reproduced deadlock. A backtrace is needed to identify the specific GLib wait.
 For useful library symbols, install your distribution's debug symbols or supply its
 `DEBUGINFOD_URLS`; gdb's single attempt is limited to 90 seconds.
+To keep that attempt small, it explicitly loads shared-library symbols for GIO and libfm-qt.
 Partial debugger output remains in `backtrace.txt` if that limit or the probe's deadline interrupts it.
 
 Exit codes: 0 means all 40 starts answered; 2 means a startup was not ready and gdb captured a

@@ -6,11 +6,12 @@ ARG LIBFM_QT=8e15258dd9513a21c19435c0dc4a6df8fad6ba4b
 ARG PCMANFM_QT=11cc9ab4a3d8ed8d4b318606856939bead658f5f
 ARG PR_2213=6538dadc23c7a6ef001c7c970b356ecd189b80bd
 ARG FIX=0
+ARG TEST_UID=1000
 RUN pacman -Syu --noconfirm --needed \
       base-devel git cmake ninja qt6-base qt6-tools lxqt-build-tools lxqt-menu-data layer-shell-qt \
       libexif libxcb glib2 lxqt-session openbox xorg-server-xvfb xorg-xwininfo dbus gdb python \
       procps-ng gvfs \
- && useradd -m -u 1000 tester
+ && useradd -m -u "$TEST_UID" tester
 RUN git clone -q https://github.com/lxqt/libfm-qt /src/libfm-qt \
  && git -C /src/libfm-qt checkout -q --detach "$LIBFM_QT" \
  && cmake -S /src/libfm-qt -B /src/libfm-qt/build -G Ninja -DCMAKE_INSTALL_PREFIX=/usr \

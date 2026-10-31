@@ -40,5 +40,29 @@ Generated files remain for inspection. The private display also uses X's normal 
 under `/tmp`; abrupt X termination may leave those display-specific paths. Your existing home,
 display, bus and desktop settings are not used.
 
-This smaller workload still needs its own master/control validation; the earlier README's run
-counts apply to `repro.py`, not this script.
+## Observed result
+
+[Run 41162046972](https://github.com/solarex1/pcmanfm-qt-desktop-hang/actions/runs/41162046972)
+tested script commit `441f07a` on 2026-10-31, using Arch Linux, GLib 2.90.1-1 and Qt 6.12.0-3.
+The application sources were pcmanfm-qt master `11cc9ab4` and libfm-qt master `8e15258d`, both
+still their upstream heads when checked after the run.
+
+- Unmodified master was not ready on its first start. The [complete backtrace](minimal-trace.txt)
+  shows its main thread waiting in GLib while the desktop replaces its initial folder.
+- With the application workaround, commit `6538dadc` from #2213, all 40 starts were responsive.
+  The five real-process failure/termination checks also passed. Abrupt cancellation left the
+  allocated X socket/lock paths described above; the checks found no remaining live processes.
+
+Selected frames from that stock main thread, omitting intervening reference-release frames:
+
+```text
+g_cond_wait
+g_context_specific_group_request_state
+g_unix_mount_monitor_finalize
+Fm::VolumeManager::~VolumeManager
+PCManFM::DesktopWindow::setDesktopFolder
+PCManFM::Application::exec
+```
+
+These are observations for the stated versions and one-CPU workload, not a universal failure
+rate. The earlier README's larger comparison counts apply to `repro.py`, not this script.

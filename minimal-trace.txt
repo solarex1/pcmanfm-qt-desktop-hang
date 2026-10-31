@@ -1,0 +1,143 @@
+[New LWP 61 (id 2)]
+[New LWP 60 (id 3)]
+[New LWP 59 (id 4)]
+[New LWP 51 (id 5)]
+[New LWP 32 (id 6)]
+[New LWP 31 (id 7)]
+[New LWP 30 (id 8)]
+[New LWP 29 (id 9)]
+Downloading separate debug info for /usr/lib/libc.so.6...
+Downloading separate debug info for system-supplied DSO at 0x7fbd9c762000...
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/usr/lib/libthread_db.so.1".
+[Switching to thread 1 (Thread 0x7fbd968a4a80 (LWP 26))]
+Downloading source file /usr/src/debug/glibc/glibc/misc/../sysdeps/unix/sysv/linux/x86_64/syscall.S...
+syscall () at ../sysdeps/unix/sysv/linux/x86_64/syscall.S:38
+38		cmpq $-4095, %rax	/* Check %rax for error.  */
+Downloading separate debug info for /usr/lib/libgio-2.0.so.0...
+
+Thread 9 (Thread 0x7fbd9674a6c0 (LWP 29) "QXcbEventQueue"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007fbd9a1e92e5 in internal_syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=0, a5=0, a6=0, nr=7) at ../sysdeps/unix/sysv/linux/sysdep-cancel.h:53
+#2  syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=0, a5=0, a6=0, nr=7) at ../sysdeps/unix/sysv/linux/sysdep-cancel.h:79
+#3  __GI___poll (fds=<optimized out>, nfds=<optimized out>, timeout=<optimized out>) at ../sysdeps/unix/sysv/linux/poll.c:29
+#4  0x00007fbd9a8af20b in ?? () from /usr/lib/libxcb.so.1
+#5  0x00007fbd9a8b0f3d in xcb_wait_for_event () from /usr/lib/libxcb.so.1
+#6  0x00007fbd967e0799 in ?? () from /usr/lib/qt6/plugins/platforms/../../../libQt6XcbQpa.so.6
+#7  0x00007fbd9b04cfdb in ?? () from /usr/lib/libQt6Core.so.6
+#8  0x00007fbd9a170042 in start_thread (arg=<optimized out>) at pthread_create.c:454
+#9  0x00007fbd9a1f8554 in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:100
+
+Thread 8 (Thread 0x7fbd956a36c0 (LWP 30) "pool-spawner"):
+#0  syscall () at ../sysdeps/unix/sysv/linux/x86_64/syscall.S:38
+#1  0x00007fbd9abb2bde in g_cond_wait () from /usr/lib/libglib-2.0.so.0
+#2  0x00007fbd9ab404ad in ?? () from /usr/lib/libglib-2.0.so.0
+#3  0x00007fbd9abb9027 in ?? () from /usr/lib/libglib-2.0.so.0
+#4  0x00007fbd9abb6b54 in ?? () from /usr/lib/libglib-2.0.so.0
+#5  0x00007fbd9a170042 in start_thread (arg=<optimized out>) at pthread_create.c:454
+#6  0x00007fbd9a1f8554 in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:100
+
+Thread 7 (Thread 0x7fbd8ffff6c0 (LWP 31) "gmain"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007fbd9a1e99d7 in internal_syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=<optimized out>, a5=8, a6=0, nr=271) at ../sysdeps/unix/sysv/linux/sysdep-cancel.h:53
+#2  syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=<optimized out>, a5=8, a6=0, nr=271) at ../sysdeps/unix/sysv/linux/sysdep-cancel.h:79
+#3  __GI_ppoll (fds=<optimized out>, nfds=<optimized out>, timeout=<optimized out>, sigmask=<optimized out>) at ../sysdeps/unix/sysv/linux/ppoll.c:42
+#4  0x00007fbd9ab84c9e in ?? () from /usr/lib/libglib-2.0.so.0
+#5  0x00007fbd9ab84db5 in g_main_context_iteration () from /usr/lib/libglib-2.0.so.0
+#6  0x00007fbd9ab84e02 in ?? () from /usr/lib/libglib-2.0.so.0
+#7  0x00007fbd9abb6b54 in ?? () from /usr/lib/libglib-2.0.so.0
+#8  0x00007fbd9a170042 in start_thread (arg=<optimized out>) at pthread_create.c:454
+#9  0x00007fbd9a1f8554 in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:100
+
+Thread 6 (Thread 0x7fbd8effe6c0 (LWP 32) "gdbus"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007fbd9a1e99d7 in internal_syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=<optimized out>, a5=8, a6=0, nr=271) at ../sysdeps/unix/sysv/linux/sysdep-cancel.h:53
+#2  syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=<optimized out>, a5=8, a6=0, nr=271) at ../sysdeps/unix/sysv/linux/sysdep-cancel.h:79
+#3  __GI_ppoll (fds=<optimized out>, nfds=<optimized out>, timeout=<optimized out>, sigmask=<optimized out>) at ../sysdeps/unix/sysv/linux/ppoll.c:42
+#4  0x00007fbd9ab84c9e in ?? () from /usr/lib/libglib-2.0.so.0
+#5  0x00007fbd9ab84f77 in g_main_loop_run () from /usr/lib/libglib-2.0.so.0
+#6  0x00007fbd9aa58b64 in gdbus_shared_thread_func (user_data=0x55e47ffb5ed0) at ../glib/gio/gdbusprivate.c:284
+#7  0x00007fbd9abb6b54 in ?? () from /usr/lib/libglib-2.0.so.0
+#8  0x00007fbd9a170042 in start_thread (arg=<optimized out>) at pthread_create.c:454
+#9  0x00007fbd9a1f8554 in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:100
+
+Thread 5 (Thread 0x7fbd8dffd6c0 (LWP 51) "QDBusConnection"):
+#0  __syscall_cancel_arch () at ../sysdeps/unix/sysv/linux/x86_64/syscall_cancel.S:56
+#1  0x00007fbd9a1e99d7 in internal_syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=<optimized out>, a5=8, a6=0, nr=271) at ../sysdeps/unix/sysv/linux/sysdep-cancel.h:53
+#2  syscall_cancel (a1=<optimized out>, a2=<optimized out>, a3=<optimized out>, a4=<optimized out>, a5=8, a6=0, nr=271) at ../sysdeps/unix/sysv/linux/sysdep-cancel.h:79
+#3  __GI_ppoll (fds=<optimized out>, nfds=<optimized out>, timeout=<optimized out>, sigmask=<optimized out>) at ../sysdeps/unix/sysv/linux/ppoll.c:42
+#4  0x00007fbd9ab84c9e in ?? () from /usr/lib/libglib-2.0.so.0
+#5  0x00007fbd9ab84db5 in g_main_context_iteration () from /usr/lib/libglib-2.0.so.0
+#6  0x00007fbd9b198d22 in QEventDispatcherGlib::processEvents(QFlags<QEventLoop::ProcessEventsFlag>) () from /usr/lib/libQt6Core.so.6
+#7  0x00007fbd9ae6aa74 in QEventLoop::exec(QFlags<QEventLoop::ProcessEventsFlag>) () from /usr/lib/libQt6Core.so.6
+#8  0x00007fbd9af98a02 in QThread::exec() () from /usr/lib/libQt6Core.so.6
+#9  0x00007fbd9b3d2781 in ?? () from /usr/lib/libQt6DBus.so.6
+#10 0x00007fbd9b04cfdb in ?? () from /usr/lib/libQt6Core.so.6
+#11 0x00007fbd9a170042 in start_thread (arg=<optimized out>) at pthread_create.c:454
+#12 0x00007fbd9a1f8554 in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:100
+
+Thread 4 (Thread 0x7fbd7ffff6c0 (LWP 59) "Fm::JobThread"):
+#0  syscall () at ../sysdeps/unix/sysv/linux/x86_64/syscall.S:38
+#1  0x00007fbd9b04e831 in QLatch::waitInternal(int) () from /usr/lib/libQt6Core.so.6
+#2  0x00007fbd9aecae07 in ?? () from /usr/lib/libQt6Core.so.6
+#3  0x00007fbd9b04cfdb in ?? () from /usr/lib/libQt6Core.so.6
+#4  0x00007fbd9a170042 in start_thread (arg=<optimized out>) at pthread_create.c:454
+#5  0x00007fbd9a1f8554 in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:100
+
+Thread 3 (Thread 0x7fbd7effe6c0 (LWP 60) "Fm::JobThread"):
+#0  syscall () at ../sysdeps/unix/sysv/linux/x86_64/syscall.S:38
+#1  0x00007fbd9b04e831 in QLatch::waitInternal(int) () from /usr/lib/libQt6Core.so.6
+#2  0x00007fbd9aecae07 in ?? () from /usr/lib/libQt6Core.so.6
+#3  0x00007fbd9c60598b in QMetaObject::activate<void, Fm::GErrorPtr, Fm::Job::ErrorSeverity, Fm::Job::ErrorAction> (sender=0x55e480015f70, mo=0x7fbd9c72f820 <Fm::Job::staticMetaObject>, local_signal_index=2, ret=0x0) at /usr/include/qt6/QtCore/qobjectdefs.h:320
+#4  Fm::Job::error (this=this@entry=0x55e480015f70, _t1=..., _t2=<optimized out>, _t2@entry=Fm::Job::ErrorSeverity::MILD, _t3=@0x7fbd7effd8b4: Fm::Job::ErrorAction::CONTINUE) at /src/libfm-qt/build/src/fm-qt6_autogen/TAC5DWH4SE/moc_job.cpp:158
+#5  0x00007fbd9c636114 in Fm::Job::emitError (this=this@entry=0x55e480015f70, err=..., severity=Fm::Job::ErrorSeverity::MILD) at /src/libfm-qt/src/core/job.cpp:43
+#6  0x00007fbd9c639add in Fm::DirListJob::exec (this=0x55e480015f70) at /src/libfm-qt/src/core/dirlistjob.cpp:37
+#7  0x00007fbd9c63607f in Fm::Job::run (this=0x55e480015f70) at /src/libfm-qt/src/core/job.cpp:32
+#8  0x00007fbd9b04cfdb in ?? () from /usr/lib/libQt6Core.so.6
+#9  0x00007fbd9a170042 in start_thread (arg=<optimized out>) at pthread_create.c:454
+#10 0x00007fbd9a1f8554 in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:100
+
+Thread 2 (Thread 0x7fbd7dffd6c0 (LWP 61) "Fm::JobThread"):
+#0  syscall () at ../sysdeps/unix/sysv/linux/x86_64/syscall.S:38
+#1  0x00007fbd9b04e831 in QLatch::waitInternal(int) () from /usr/lib/libQt6Core.so.6
+#2  0x00007fbd9aecae07 in ?? () from /usr/lib/libQt6Core.so.6
+#3  0x00007fbd9b04cfdb in ?? () from /usr/lib/libQt6Core.so.6
+#4  0x00007fbd9a170042 in start_thread (arg=<optimized out>) at pthread_create.c:454
+#5  0x00007fbd9a1f8554 in clone () at ../sysdeps/unix/sysv/linux/x86_64/clone.S:100
+
+Thread 1 (Thread 0x7fbd968a4a80 (LWP 26) "pcmanfm-qt"):
+#0  syscall () at ../sysdeps/unix/sysv/linux/x86_64/syscall.S:38
+#1  0x00007fbd9abb2bde in g_cond_wait () from /usr/lib/libglib-2.0.so.0
+#2  0x00007fbd9a977a6e in g_context_specific_group_request_state (group=group@entry=0x7fbd9ab18880 <mount_monitor_group>, requested_state=requested_state@entry=0, requested_func=requested_func@entry=0x7fbd9aa054b0 <mount_monitor_stop>) at ../glib/gio/gcontextspecificgroup.c:157
+#3  0x00007fbd9a97a736 in g_context_specific_group_remove (group=0x7fbd9ab18880 <mount_monitor_group>, context=0x7fbd90000f20, instance=0x55e47ffc4270, stop_func=0x7fbd9aa054b0 <mount_monitor_stop>) at ../glib/gio/gcontextspecificgroup.c:224
+#4  0x00007fbd9a9fd80a in g_unix_mount_monitor_finalize (object=0x55e47ffc4270) at ../glib/gio/gunixmounts.c:2568
+#5  0x00007fbd9a8f6ef0 in g_object_unref () from /usr/lib/libgobject-2.0.so.0
+#6  0x00007fbd9aa06f3b in g_unix_volume_monitor_finalize (object=0x55e4800bcc60) at ../glib/gio/gunixvolumemonitor.c:77
+#7  0x00007fbd9a8f6ef0 in g_object_unref () from /usr/lib/libgobject-2.0.so.0
+#8  0x00007fbd9a9f1f35 in g_union_volume_monitor_finalize (object=0x55e47ffe6b00) at ../glib/gio/gunionvolumemonitor.c:72
+#9  0x00007fbd9a8f6ef0 in g_object_unref () from /usr/lib/libgobject-2.0.so.0
+#10 0x00007fbd9c64a12c in Fm::GObjectPtr<_GVolumeMonitor>::~GObjectPtr (this=0x55e4800bc2f0) at /src/libfm-qt/src/core/gobjectptr.h:32
+#11 Fm::VolumeManager::~VolumeManager (this=0x55e4800bc2e0) at /src/libfm-qt/src/core/volumemanager.cpp:32
+#12 0x00007fbd9c6103ed in std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release_last_use (this=0x55e4800bc2d0) at /usr/include/c++/16/bits/shared_ptr_base.h:174
+#13 std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release_last_use_cold (this=0x55e4800bc2d0) at /usr/include/c++/16/bits/shared_ptr_base.h:198
+#14 0x00007fbd9c633fe7 in std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release (this=0x55e4800bc2d0) at /usr/include/c++/16/bits/shared_ptr_base.h:430
+#15 std::__shared_count<(__gnu_cxx::_Lock_policy)2>::~__shared_count (this=0x55e47ffdebd0) at /usr/include/c++/16/bits/shared_ptr_base.h:1137
+#16 std::__shared_ptr<Fm::VolumeManager, (__gnu_cxx::_Lock_policy)2>::~__shared_ptr (this=0x55e47ffdebc8) at /usr/include/c++/16/bits/shared_ptr_base.h:1611
+#17 std::shared_ptr<Fm::VolumeManager>::~shared_ptr (this=0x55e47ffdebc8) at /usr/include/c++/16/bits/shared_ptr.h:175
+#18 Fm::Folder::~Folder (this=0x55e47ffdeb70) at /src/libfm-qt/src/core/folder.cpp:108
+#19 0x000055e47f0b6d8d in std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release_last_use (this=0x55e47ffdeb60) at /usr/include/c++/16/bits/shared_ptr_base.h:174
+#20 std::_Sp_counted_base<(__gnu_cxx::_Lock_policy)2>::_M_release_last_use_cold (this=0x55e47ffdeb60) at /usr/include/c++/16/bits/shared_ptr_base.h:198
+#21 0x000055e47f10bc98 in std::__shared_count<(__gnu_cxx::_Lock_policy)2>::~__shared_count (this=<optimized out>) at /usr/include/c++/16/bits/shared_ptr_base.h:1137
+#22 std::__shared_ptr<Fm::Folder, (__gnu_cxx::_Lock_policy)2>::~__shared_ptr (this=<optimized out>) at /usr/include/c++/16/bits/shared_ptr_base.h:1611
+#23 std::__shared_ptr<Fm::Folder, (__gnu_cxx::_Lock_policy)2>::operator= (this=0x55e47ffd8bb8, __r=...) at /usr/include/c++/16/bits/shared_ptr_base.h:1707
+#24 std::shared_ptr<Fm::Folder>::operator= (this=0x55e47ffd8bb8, __r=...) at /usr/include/c++/16/bits/shared_ptr.h:439
+#25 PCManFM::DesktopWindow::setDesktopFolder (this=this@entry=0x55e47ffd8ac0) at /src/pcmanfm-qt/pcmanfm/desktopwindow.cpp:522
+#26 0x000055e47f114c34 in PCManFM::DesktopWindow::updateFromSettings (this=this@entry=0x55e47ffd8ac0, settings=..., changeSlide=changeSlide@entry=true, allowShortcutRemoval=allowShortcutRemoval@entry=false) at /src/pcmanfm-qt/pcmanfm/desktopwindow.cpp:969
+#27 0x000055e47f0b9db9 in PCManFM::Application::createDesktopWindow (this=this@entry=0x7ffe0757f7c0, screenNum=0, screenName=...) at /src/pcmanfm-qt/pcmanfm/application.cpp:838
+#28 0x000055e47f0bc246 in PCManFM::Application::desktopManager (this=0x7ffe0757f7c0, enabled=<optimized out>) at /src/pcmanfm-qt/pcmanfm/application.cpp:477
+#29 0x000055e47f0c081e in PCManFM::Application::parseCommandLineArgs (this=this@entry=0x7ffe0757f7c0) at /src/pcmanfm-qt/pcmanfm/application.cpp:252
+#30 0x000055e47f0c1929 in PCManFM::Application::exec (this=0x7ffe0757f7c0) at /src/pcmanfm-qt/pcmanfm/application.cpp:353
+#31 0x000055e47f0b2532 in main (argc=<optimized out>, argv=0x7ffe0757fcd8) at /src/pcmanfm-qt/pcmanfm/pcmanfm.cpp:12
+[Inferior 1 (process 26) detached]
+
+gdb exit: 0

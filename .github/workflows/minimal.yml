@@ -1,0 +1,75 @@
+name: minimal native reproduction
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [minimal-native-repro]
+    paths:
+      - minimal.py
+      - check_minimal.py
+      - .github/workflows/minimal.yml
+      - Dockerfile.master
+
+permissions:
+  contents: read
+
+jobs:
+  native:
+    strategy:
+      fail-fast: false
+      matrix:
+        build: [stock, patched]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Build current master
+        run: docker build -f Dockerfile.master --build-arg FIX=${{ matrix.build == 'patched' && 1 || 0 }} -t repro .
+      - name: Run the native script
+        shell: bash
+        run: |
+          mkdir out
+          chmod 0777 out
+          docker run --rm --entrypoint sh repro -c 'cat /versions.txt; pacman -Q glib2 qt6-base'
+          set +e
+          docker run --rm --cap-add SYS_PTRACE --user tester -w /out \
+            -v "$PWD/out:/out" -v "$PWD/minimal.py:/minimal.py:ro" \
+            --entrypoint python3 repro /minimal.py | tee out/console.txt
+          status=${PIPESTATUS[0]}
+          set -e
+          echo "$status" > out/exit-status.txt
+          if [[ '${{ matrix.build }}' == stock ]]; then
+            test "$status" -eq 2
+            python3 - <<'PY'
+          from pathlib import Path
+          import re
+          traces = list(Path('out').glob('pcmanfm-repro-*/backtrace.txt'))
+          assert len(traces) == 1, traces
+          text = re.split(r'^Thread 1 \(', traces[0].read_text(), flags=re.M)[1]
+          for frame in ['g_context_specific_group_request_state', 'VolumeManager::~VolumeManager', 'DesktopWindow::setDesktopFolder']:
+              assert frame in text, frame
+          PY
+          else
+            test "$status" -eq 0
+            grep -F '40 responsive starts; no hang observed in this run.' out/console.txt
+          fi
+      - name: Check real failures and process cleanup
+        if: matrix.build == 'patched'
+        shell: bash
+        run: |
+          mkdir checks
+          chmod 0777 checks
+          docker run --rm --cap-add SYS_PTRACE --user tester -w /checks \
+            -v "$PWD/checks:/checks" -v "$PWD/minimal.py:/minimal.py:ro" \
+            -v "$PWD/check_minimal.py:/check_minimal.py:ro" \
+            --entrypoint python3 repro /check_minimal.py /minimal.py | tee checks/verification.txt
+      - name: Keep complete output and the first trace
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: minimal-${{ matrix.build }}
+          path: |
+            out/
+            checks/

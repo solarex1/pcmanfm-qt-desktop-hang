@@ -48,6 +48,7 @@ def backtrace(pid):
             code = sp.run(["gdb", "-batch", "-iex", "set debuginfod enabled on",
                            "-iex", "set auto-solib-add off", "-p", str(pid),
                            "-ex", "sharedlibrary libgio-2.0", "-ex", "sharedlibrary libfm-qt",
+                           "-ex", "set debuginfod enabled off", "-ex", "sharedlibrary",
                            "-ex", "thread apply all bt"], stdout=trace, stderr=sp.STDOUT,
                           timeout=90, preexec_fn=child).returncode
             status = f"gdb exit: {code}"

@@ -5,13 +5,28 @@ A reproduction of a deadlock in pcmanfm-qt's desktop as it starts, for
 name, `org.pcmanfm.PCManFM`, but never answers a call or draws the desktop: its main thread waits
 forever in GLib as the desktop replaces its first folder.
 
-It runs fresh starts of libfm-qt and pcmanfm-qt built from their master branches, on Arch Linux
+## Native reproduction
+
+To check an installed binary on Linux, download [minimal.py](minimal.py) and run:
+
+```sh
+python3 minimal.py /path/to/pcmanfm-qt
+```
+
+The [native guide](MINIMAL.md) lists the tools and explains the workload and results. This uses
+a private X display, session bus and home, with two busy workers on one logical CPU. Docker,
+GitHub Actions and a full LXQt session are not required. The script stops at its first non-ready
+startup and attempts a backtrace; that trace identifies whether it is the reported GLib wait.
+
+## Container comparisons
+
+The original larger harness runs fresh starts of libfm-qt and pcmanfm-qt built from master on Arch Linux
 (`Dockerfile.master`), and of Debian 13's pcmanfm-qt 2.1.0 (`Dockerfile`): alone and in an LXQt
 session, with and without added CPU load, and the same loaded starts with #2213's change. Each
 image takes its distribution's packages as they are when it's built, so a later update, such as
 GLib's fix, can change what it shows; each job prints the versions it ran.
 
-## Results
+### Results
 
 [Run 41085290877](https://github.com/solarex1/pcmanfm-qt-desktop-hang/actions/runs/41085290877),
 on GitHub's `ubuntu-24.04` runners with 4 CPUs:
@@ -55,7 +70,7 @@ intermediate frames that release references:
 #32 main () at /src/pcmanfm-qt/pcmanfm/pcmanfm.cpp:12
 ```
 
-## Run it
+### Run it
 
 On GitHub's runners: fork this repository, enable its workflows, and run `reproduce` from the
 Actions tab. Each job builds its image and runs 40 fresh starts; the job's summary gives the

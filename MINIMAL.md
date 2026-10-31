@@ -25,6 +25,8 @@ an error, not a reproduced deadlock. A backtrace is needed to identify the speci
 For useful library symbols, install your distribution's debug symbols or supply its
 `DEBUGINFOD_URLS`; gdb's single attempt is limited to 90 seconds.
 To keep that attempt small, it explicitly loads shared-library symbols for GIO and libfm-qt.
+It then reads the remaining local library metadata with further symbol downloads disabled, so
+GDB can unwind through those libraries too.
 Partial debugger output remains in `backtrace.txt` if that limit or the probe's deadline interrupts it.
 
 Exit codes: 0 means all 40 starts answered; 2 means a startup was not ready and gdb captured a
